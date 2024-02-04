@@ -63,16 +63,18 @@ void loop() {
   long duration = pulseIn(ultrasonicEchoPin, HIGH);
   int distance = duration / 58;  // Convert the pulse duration to distance in centimeters
 
-  Serial.print("\nDistance: ");
-  Serial.print(distance);
-  Serial.println(" cm\n");
+  // Serial.print("\nDistance: ");
+  // Serial.print(distance);
+  // Serial.println(" cm\n");
 
   if (distance < 100) {
-    Serial.println("Object detected!");  // Print detection status to Serial Monitor
+    Serial.println("Object detected by Ultrasonic Sensor.");  // Print detection status to Serial Monitor
       Serial.println("- BLUE LED ON -");
     ultrasonicDetected = HIGH;
   } else {
     ultrasonicDetected = LOW;
+    Serial.println("No Object detected by Ultrasonic Sensor.");  // Print detection status to Serial Monitor
+    Serial.println("- BLUE LED OFF -");
   }
   delay(1000);
 }
