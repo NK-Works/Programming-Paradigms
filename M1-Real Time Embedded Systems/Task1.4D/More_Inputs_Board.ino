@@ -72,8 +72,6 @@ void loop() {
       Serial.println("- BLUE LED ON -");
     ultrasonicDetected = HIGH;
   } else {
-    Serial.println("No object detected.");
-      Serial.println("- ALL LED OFF -");
     ultrasonicDetected = LOW;
   }
   delay(1000);
@@ -153,14 +151,14 @@ void pir2MotionDetection() {
   if (val == HIGH) {
     digitalWrite(ledPin3, HIGH);
     if (pir2Detected == LOW) {
-      Serial.println("Motion detected on PIR 2!");
+      Serial.println("Motion detected on PIR Sensor 2.");
       Serial.println("- RED LED ON -");
       pir2Detected = HIGH;  // Set the pir2 flag to high as motion is detected
     }
   } else {
     digitalWrite(ledPin3, LOW);
     if (pir2Detected == HIGH) {
-      Serial.println("Motion ended on PIR 2!");
+      Serial.println("Motion ended on PIR Sensor 2.");
       Serial.println("- RED LED OFF -");
       pir2Detected = LOW;  // Set the pir2 flag to low as motion is stopped
     }
