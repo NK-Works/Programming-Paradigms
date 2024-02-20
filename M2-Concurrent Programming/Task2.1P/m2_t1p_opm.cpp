@@ -13,16 +13,16 @@ using namespace chrono;
 int main() {
     int matrixSize;
 
-    // Getting the size of the matrix from the user and ensure it is between 2 and 12
+    // Getting the size of the matrix from the user and ensure it is between 2 and 2000
     do {
-        cout << "Enter the size of the matrix (between 2 and 12): ";
+        cout << "Enter the size of the matrix (between 2 and 2000): ";
         cin >> matrixSize;
 
-        if (matrixSize < 2 || matrixSize > 12) {
-            cout << "Invalid size. Please enter a size between 2 and 12." << endl;
+        if (matrixSize < 2 || matrixSize > 2000) {
+            cout << "Invalid size. Please enter a size between 2 and 2000." << endl;
         }
 
-    } while (matrixSize < 2 || matrixSize > 12);
+    } while (matrixSize < 2 || matrixSize > 2000);
 
     int matrixA[matrixSize][matrixSize], matrixB[matrixSize][matrixSize], matrixOut[matrixSize][matrixSize]; // A,B,C matrix
 
@@ -60,17 +60,6 @@ int main() {
     auto duration = duration_cast<microseconds>(end_time - start_time);
     cout << "Time taken for matrix multiplication: " << duration.count() << " microseconds." << endl;
 
-    // Printing the result to the console
-    cout << "::: Resulting Matrix :::" << endl;
-      // Printing the result to the console
-    for (int i = 0; i < matrixSize; ++i)
-    {
-        for (int j = 0; j < matrixSize; ++j)
-        {
-            cout << matrixOut[i][j] << " ";
-        }
-        cout << endl;
-    }
     // Open a text file for writing
     ofstream outputFile("opm_output.txt");
 
