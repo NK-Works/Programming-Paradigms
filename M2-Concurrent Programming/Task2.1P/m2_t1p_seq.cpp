@@ -12,7 +12,7 @@ int main()
 {
     int matrixSize;
 
-    // Getting the size of the matrix from the user and ensure it is between 2 and 12
+    // Getting the size of the matrix from the user and ensure it is between 2 and 2000
     do
     {
         cout << "Enter the size of the matrix (between 2 and 2000): ";
