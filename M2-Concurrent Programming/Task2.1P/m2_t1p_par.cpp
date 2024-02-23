@@ -55,6 +55,7 @@ int main()
 
     } while (matrixSize < 2 || matrixSize > 2000);
 
+    cout << "Running for threads: " << NUM_THREADS << endl;
     // Initialize the matrices for the inputs and output using dynamic memory allocation
     matrixA = new int*[matrixSize];
     matrixB = new int*[matrixSize];
