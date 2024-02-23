@@ -37,15 +37,15 @@ int main()
         matrixOut[i] = new int[matrixSize];
     }
 
-    // Generating a random numbers for the input matrices
+    // Generating a random matrixSizeber
     random_device random;
     mt19937 genRand(random());
     uniform_int_distribution<> dist(0, 100);
 
-    // Initializing matrices A and B with random values
-    for (int i = 0; i < matrixSize; ++i)
+    // Initializing the matrices
+    for (int i = 0; i < matrixSize; i++)
     {
-        for (int j = 0; j < matrixSize; ++j)
+        for (int j = 0; j < matrixSize; j++)
         {
             matrixA[i][j] = dist(genRand);
             matrixB[i][j] = dist(genRand);

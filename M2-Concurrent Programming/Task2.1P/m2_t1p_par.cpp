@@ -1,105 +1,112 @@
 /* This code is made by Anneshu Nag, Student ID-2210994760*/
-/*        This is a parallel matrix multiplication.     */
+/*   This is a pthread parallel matrix multiplication.    */
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
-#include <thread>
 #include <random>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace chrono;
 
-#define MIN_MATRIX_SIZE 2
-#define MAX_MATRIX_SIZE 2000
 #define NUM_THREADS thread::hardware_concurrency() // Fetching number of cores in the system
 
-int matrix1[MAX_MATRIX_SIZE][MAX_MATRIX_SIZE];
-int matrix2[MAX_MATRIX_SIZE][MAX_MATRIX_SIZE];
-int matrixOut[MAX_MATRIX_SIZE][MAX_MATRIX_SIZE];
-
-struct thread_data
-{
-    int thread_id;
-};
+int matrixSize;
+// Initialize the matrices for the inputs and output using dynamic memory allocation
+int** matrixA;
+int** matrixB;
+int** matrixOut;
 
 void *multiply_matrices(void *threadarg)
 {
-    struct thread_data *my_data;
-    my_data = (struct thread_data *)threadarg;
-    int start_row = my_data->thread_id * (MAX_MATRIX_SIZE / NUM_THREADS);
-    int end_row = start_row + (MAX_MATRIX_SIZE / NUM_THREADS);
-    
-    for (int i = start_row; i < end_row; i++)
+    int threadNum = *((int *)threadarg);
+    int threadSize = matrixSize / NUM_THREADS;
+    int startRow = threadNum * threadSize;
+    int endRow = (threadNum == NUM_THREADS - 1) ? matrixSize : (threadNum + 1) * threadSize;
+
+    for (int i = startRow; i < endRow; ++i)
     {
-        for (int j = 0; j < MAX_MATRIX_SIZE; j++)
+        for (int j = 0; j < matrixSize; j++)
         {
             int sum = 0;
-            for (int k = 0; k < MAX_MATRIX_SIZE; k++)
+            for (int k = 0; k < matrixSize; k++)
             {
-                sum += matrix1[i][k] * matrix2[k][j];
+                sum += matrixA[i][k] * matrixB[k][j];
             }
             matrixOut[i][j] = sum;
         }
     }
-    pthread_exit(nullptr);
-    return nullptr;
+    return NULL;
 }
 
 int main()
 {
-    int matrixSize;
-
-    // Getting the size of the matrix from the user and ensure it is between 2 and 10
+    // Getting the size of the matrix from the user and ensure it is between 2 and 2000
     do
     {
-        cout << "Enter the size of the matrix (between " << MIN_MATRIX_SIZE << " and " << MAX_MATRIX_SIZE << "): ";
+        cout << "Enter the size of the matrix (between " << 2 << " and " << 2000 << "): ";
         cin >> matrixSize;
 
-        if (matrixSize < MIN_MATRIX_SIZE || matrixSize > MAX_MATRIX_SIZE)
+        if (matrixSize < 2 || matrixSize > 2000)
         {
-            cout << "Invalid size. Please enter a size between " << MIN_MATRIX_SIZE << " and " << MAX_MATRIX_SIZE << "." << endl;
+            cout << "Invalid size. Please enter a size between " << 2 << " and " << 2000 << "." << endl;
         }
 
-    } while (matrixSize < MIN_MATRIX_SIZE || matrixSize > MAX_MATRIX_SIZE);
-    
+    } while (matrixSize < 2 || matrixSize > 2000);
+
+    // Initialize the matrices for the inputs and output using dynamic memory allocation
+    matrixA = new int*[matrixSize];
+    matrixB = new int*[matrixSize];
+    matrixOut = new int*[matrixSize];
+
+    for (int i = 0; i < matrixSize; ++i)
+    {
+        matrixA[i] = new int[matrixSize];
+        matrixB[i] = new int[matrixSize];
+        matrixOut[i] = new int[matrixSize];
+    }
+
     pthread_t threads[NUM_THREADS];
-    struct thread_data thread_data_array[NUM_THREADS];
-    
+    int thread_args[NUM_THREADS];
+
     // Generating a random matrixSizeber
     random_device random;
     mt19937 genRand(random());
     uniform_int_distribution<> dist(0, 100);
 
-     // Initializing the matrices
+    // Initializing the matrices
     for (int i = 0; i < matrixSize; i++)
     {
         for (int j = 0; j < matrixSize; j++)
         {
-            matrix1[i][j] = dist(genRand);
-            matrix2[i][j] = dist(genRand);
+            matrixA[i][j] = dist(genRand);
+            matrixB[i][j] = dist(genRand);
         }
     }
+
     // Start the timer
     auto start_time = high_resolution_clock::now();
 
     // Creating threads
     for (int i = 0; i < NUM_THREADS; i++)
     {
-        thread_data_array[i].thread_id = i;
-        pthread_create(&threads[i], nullptr, multiply_matrices, (void *)&thread_data_array[i]);
+        thread_args[i] = i;
+        pthread_create(&threads[i], NULL, multiply_matrices, (void*)&thread_args[i]);
     }
+
     // Waiting for threads to finish
     for (int i = 0; i < NUM_THREADS; i++)
     {
         pthread_join(threads[i], nullptr);
     }
+
     // Stop the timer
     auto end_time = high_resolution_clock::now();
     // Calculate and print the elapsed time
     auto duration = duration_cast<microseconds>(end_time - start_time);
     cout << "Time taken for matrix multiplication: " << duration.count() << " microseconds." << endl;
-    
+
     // Open a text file for writing
     ofstream outputFile("par_output.txt");
 
@@ -119,10 +126,20 @@ int main()
         // Restore cout back to the console
         cout.rdbuf(coutbuf);
 
-        cout << "\nOutput has been written to 'par_output.txt'" << endl;
+        cout << "Output has been written to 'par_output.txt'" << endl;
     } else {
-        cerr << "\nUnable to open output.txt for writing." << endl;
+        cerr << "Unable to open output.txt for writing." << endl;
     }
-    pthread_exit(nullptr);
+    // Deallocate memory when done
+    for (int i = 0; i < matrixSize; ++i)
+    {
+        delete[] matrixA[i];
+        delete[] matrixB[i];
+        delete[] matrixOut[i];
+    }
 
+    delete[] matrixA;
+    delete[] matrixB;
+    delete[] matrixOut;
+    return 0;
 }
