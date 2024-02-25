@@ -110,8 +110,6 @@ int main()
 {
     // Example usage with a smaller dataset
     vector<Point> points;
-
-    // Generate 20 random points
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> distribution(0.0, 100.0);
