@@ -1,4 +1,6 @@
 /* This code is made by Anneshu Nag, Student ID-2210994760*/
+
+// Importing the necessary libraries
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -131,10 +133,14 @@ int main()
         overall_counts[light_count.first] += light_count.second;
     }
 
-    // Print the overall congestion at each traffic light
-    cout << endl
-         << "-Overall Congestion at Each Traffic Light-" << endl;
-    for (const auto &overall_count : overall_counts)
+    // Update overall congestion counts for the last hour
+    vector<pair<int, int>> overall_counts_vector(overall_counts.begin(), overall_counts.end());
+    sort(overall_counts_vector.begin(), overall_counts_vector.end(), [](const pair<int, int> &left, const pair<int, int> &right)
+         { return left.second > right.second; });
+
+    // Print the overall congestion at each traffic light in descending order
+    cout << "-Overall Congestion at Each Traffic Light-" << endl;
+    for (const auto &overall_count : overall_counts_vector)
     {
         cout << "   |Traffic Light " << overall_count.first << ": " << overall_count.second << " total cars|" << endl;
     }

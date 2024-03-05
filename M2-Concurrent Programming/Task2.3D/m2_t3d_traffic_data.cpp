@@ -6,13 +6,16 @@
 #include <chrono>
 
 using namespace std;
+
 int main()
 {
     const int num_lights = 5;
     const int num_measurements = 12;
     ofstream outfile("traffic_test_data.txt");
+    
     // Write header fields to the file
     outfile << "Date-Time, Signal_ID, Cars_Passed\n";
+    
     // Get the current date
     auto current_time = chrono::system_clock::now();
     time_t current_time_t = chrono::system_clock::to_time_t(current_time);
