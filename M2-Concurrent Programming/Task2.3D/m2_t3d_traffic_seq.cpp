@@ -1,5 +1,4 @@
 /* This code is made by Anneshu Nag, Student ID-2210994760*/
-
 // Importing the necessary libraries
 #include <iostream>
 #include <fstream>
@@ -8,8 +7,10 @@
 #include <algorithm>
 #include <ctime>
 #include <sstream>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 struct TrafficData
 {
@@ -54,6 +55,7 @@ int main()
             .num_cars = stoi(num_cars_str)};
         data.push_back(td);
     }
+    auto start = high_resolution_clock::now(); // Start time measurement
 
     // Sort data by timestamp
     sort(data.begin(), data.end());
@@ -148,7 +150,11 @@ int main()
 
     // Print the most congested hour
     cout << endl
-         << "Most Congested Hour: " << asctime(localtime(&max_congestion_hour)) << "Number of Cars Passed: " << max_cars_for_the_hour << " cars passed." << endl;
+         << "Most Congested Hour: " << asctime(localtime(&max_congestion_hour)) << "Number of Cars Passed: " << max_cars_for_the_hour << " cars passed.\n" << endl;
+
+    auto stop = high_resolution_clock::now(); // Stop time measurement
+    auto duration = duration_cast<microseconds>(stop - start); // Calculate duration
+    std::cout << ">> Time taken by function: " << duration.count() << " microseconds <<" << std::endl;
 
     infile.close();
     return 0;

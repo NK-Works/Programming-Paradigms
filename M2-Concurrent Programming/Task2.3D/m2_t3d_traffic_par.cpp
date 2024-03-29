@@ -5,13 +5,14 @@
 #include <unordered_map>
 #include <algorithm>
 #include <ctime>
-#include <iomanip>
 #include <sstream>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+#include <chrono>
 
+using namespace std::chrono;
 using namespace std;
 
 struct TrafficData
@@ -116,6 +117,8 @@ void process_traffic_data(const TrafficData &td, unordered_map<int, int> &car_co
 
 void consumer()
 {
+    auto start = high_resolution_clock::now(); // Start time measurement
+
     unordered_map<int, int> car_counts;
     time_t current_hour = data_queue.front().timestamp / 3600 * 3600;
 
@@ -177,10 +180,14 @@ void consumer()
         cout << "   |Traffic Light " << overall_count.first << ": " << overall_count.second << " total cars|" << endl;
     }
     cout << "   -----------------------------------" << endl;
-
+    
     // Print the most congested hour
     cout << endl
-         << "Most Congested Hour: " << asctime(localtime(&max_congestion_hour)) << "Number of Cars Passed: " << max_cars_for_the_hour << " cars passed." << endl;
+         << "Most Congested Hour: " << asctime(localtime(&max_congestion_hour)) << "Number of Cars Passed: " << max_cars_for_the_hour << " cars passed.\n" << endl;
+
+    auto stop = high_resolution_clock::now(); // Stop time measurement
+    auto duration = duration_cast<microseconds>(stop - start); // Calculate duration
+    std::cout << ">> Time taken by function: " << duration.count() << " microseconds <<" << std::endl;
 }
 
 int main()
