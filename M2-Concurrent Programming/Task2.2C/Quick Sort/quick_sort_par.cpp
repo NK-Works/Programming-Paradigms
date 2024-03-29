@@ -3,48 +3,52 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <cstdlib>
 #include <pthread.h>
-#include <thread>
 
 using namespace std;
 using namespace std::chrono;
 
-// Define the number of threads based on the hardware concurrency
-#define NUM_THREADS thread::hardware_concurrency()
+#define NUM_THREADS 4
 
 // Structure to hold arguments for each thread
 struct ThreadArgs
 {
-    vector<int> *inputArray;  // Pointer to the input array
-    int left;                 
+    vector<int> *inputArray;
+    int left;
     int right;
 };
 
 // Partition function for the quicksort algorithm
 int partition(vector<int> &inputArray, int left, int right)
 {
-    int pivot = inputArray[right];
-    int i = left - 1;
-    for (int j = left; j < right; j++)
+    int pivotIdx = (left + right) / 2;
+    int pivotValue = inputArray[pivotIdx];
+
+    swap(inputArray[pivotIdx], inputArray[right]);
+
+    int storeTdx = left;
+    for (int i = left; i < right; i++)
     {
-        if (inputArray[j] < pivot)
+        if (inputArray[i] < pivotValue)
         {
-            i++;
-            swap(inputArray[i], inputArray[j]);
+            swap(inputArray[i], inputArray[storeTdx]);
+            storeTdx++;
         }
     }
-    swap(inputArray[i + 1], inputArray[right]);
-    return (i + 1);
+    swap(inputArray[storeTdx], inputArray[right]);
+
+    return storeTdx;
 }
 
-// Recursive quicksort function
+// Sequential quicksort function
 void quickSort(vector<int> &inputArray, int left, int right)
 {
     if (left < right)
     {
-        int pivotIndex = partition(inputArray, left, right);
-        quickSort(inputArray, left, pivotIndex - 1);
-        quickSort(inputArray, pivotIndex + 1, right);
+        int pivotIdx = partition(inputArray, left, right);
+        quickSort(inputArray, left, pivotIdx - 1);
+        quickSort(inputArray, pivotIdx + 1, right);
     }
 }
 
@@ -59,10 +63,10 @@ void *quickSortHelpThread(void *arg)
 // Function to perform quicksort using multiple threads
 void performQuickSort(vector<int> &inputArray, int left, int right, int numThreads)
 {
+    int pivotIndex;
     if (left < right)
     {
-        int pivotIndex = partition(inputArray, left, right);
-
+        pivotIndex = partition(inputArray, left, right);
         // Create an array to store thread IDs and an array of ThreadArgs structures
         pthread_t threads[numThreads];
         ThreadArgs threadArgs[numThreads];
@@ -82,29 +86,84 @@ void performQuickSort(vector<int> &inputArray, int left, int right, int numThrea
     }
 }
 
+// Final merger of the processes that have been sorted individually 
+void final_merge(vector<int>& data, int start, int end) {
+  if (start < end) {
+    int mid = start + (end - start) / 2;
+
+    final_merge(data, start, mid);
+    final_merge(data, mid + 1, end);
+
+    int n1 = mid - start + 1;
+    int n2 = end - mid;
+    vector<int> left_temp(n1);
+    vector<int> right_temp(n2);
+
+    for (int i = 0; i < n1; i++)
+      left_temp[i] = data[start + i];
+    for (int j = 0; j < n2; j++)
+      right_temp[j] = data[mid + 1 + j];
+
+    // Merge the temporary arrays back into data
+    int i = 0, j = 0, k = start;
+    while (i < n1 && j < n2) {
+      if (left_temp[i] <= right_temp[j]) {
+        data[k] = left_temp[i];
+        i++;
+      } else {
+        data[k] = right_temp[j];
+        j++;
+      }
+      k++;
+    }
+    while (i < n1) {
+      data[k] = left_temp[i];
+      i++;
+      k++;
+    }
+
+    while (j < n2) {
+      data[k] = right_temp[j];
+      j++;
+      k++;
+    }
+  }
+}
+
 int main()
 {
     vector<int> inputArray;
     int inputSize;
-
-    // Input array size from the user
-    cout << "Enter the size of the array you want to sort: ";
+    cout << "Enter the size of the inputArray you want to sort: ";
     cin >> inputSize;
-
-    // Fill the array with random values
     for (int i = 0; i < inputSize; i++)
     {
         inputArray.push_back(rand() % 100);
     }
 
-    // Record the start time
+    // // Print input inputArray (For testing purpose) 
+    // cout << "Input inputArray:" << endl;
+    // for (int i = 0; i < inputSize; i++)
+    // {
+    //     cout << inputArray[i] << " ";
+    // }
+    // cout << endl;
+
     auto start = high_resolution_clock::now();
-    // Call the parallel quicksort function
-    performQuickSort(inputArray, 0, inputArray.size() - 1, NUM_THREADS);
-    // Record the stop time
+    performQuickSort(inputArray, 0, inputSize - 1, NUM_THREADS);
+    final_merge(inputArray, 0, inputSize - 1);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    // Print the execution time
+
     cout << "Execution Time: " << duration.count() << " microseconds." << endl;
+
+    // // Print sorted inputArray (For testing purpose) 
+    // cout << "Sorted inputArray:" << endl;
+    // for (int i = 0; i < inputSize; i++)
+    // {
+    //     cout << inputArray[i] << " ";
+    // }
+    // cout << endl;
+
     return 0;
 }
